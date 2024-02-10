@@ -10,17 +10,16 @@ class DBClient {
   constructor() {
     const host = process.env.DB_HOST || 'localhost';
     const port = process.env.DB_PORT || 27017;
-    // eslint-disable-next-line no-unused-vars
     const database = process.env.DB_DATABASE || 'files_manager';
 
-    this.client = new MongoClient(`mongodb://${host}:${port}`, { useUnifiedTopology: true });
+    this.client = new MongoClient(`mongodb://${host}:${port}/${database}`, { useUnifiedTopology: true });
   }
 
   /**
    * Checks if this client's connection to the MongoDB server is active.
    * @returns {boolean}
    */
-  async isAlive() {
+  isAlive() {
     return this.client.isConnected();
   }
 
