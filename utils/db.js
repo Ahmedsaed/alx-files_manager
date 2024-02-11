@@ -15,26 +15,12 @@ class DBClient {
     this.mongoUri = `mongodb://${host}:${port}/${database}`;
     this.client = new MongoClient(this.mongoUri, { useUnifiedTopology: true });
 
-    this.db = null; // Placeholder for the MongoDB database connection
+    this.client.connect();
+    this.db = this.client.db();
   }
 
-  async connect() {
-    // eslint-disable-next-line no-useless-catch
-    try {
-      await this.client.connect();
-      this.db = this.client.db(); // Establish the database connection
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async isAlive() {
-    try {
-      // Check if the client is connected to the MongoDB server
-      return this.client.isConnected();
-    } catch (error) {
-      return false;
-    }
+  isAlive() {
+    return this.client.isConnected();
   }
 
   /**
@@ -64,10 +50,5 @@ class DBClient {
 
 // Create a singleton instance of the DBClient
 const dbClient = new DBClient();
-
-// Connect to the database when the module is loaded
-dbClient.connect().catch(() => {
-  process.exit(1); // Exit the process if unable to connect to the database
-});
 
 export default dbClient;
