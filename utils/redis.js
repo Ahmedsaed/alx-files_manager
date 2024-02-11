@@ -15,6 +15,11 @@ class RedisClient {
     this.client.on('error', (err) => {
       console.error('Redis Client Error:', err);
     });
+
+    this.connected = false;
+    this.client.on('connect', () => {
+      this.connected = true;
+    });
   }
 
   /**
@@ -22,7 +27,7 @@ class RedisClient {
    * @returns {boolean}
    */
   isAlive() {
-    return this.client.connected;
+    return this.connected;
   }
 
   /**
@@ -56,4 +61,5 @@ class RedisClient {
 }
 
 export const redisClient = new RedisClient();
+
 export default redisClient;
