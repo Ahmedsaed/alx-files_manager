@@ -12,15 +12,29 @@ class DBClient {
     const port = process.env.DB_PORT || 27017;
     const database = process.env.DB_DATABASE || 'files_manager';
 
-    this.client = new MongoClient(`mongodb://${host}:${port}/${database}`, { useUnifiedTopology: true });
+    this.mongoUri = `mongodb://${host}:${port}/${database}`;
+    this.client = new MongoClient(this.mongoUri, { useUnifiedTopology: true });
+
+    this.db = null; // Placeholder for the MongoDB database connection
   }
 
-  /**
-   * Checks if this client's connection to the MongoDB server is active.
-   * @returns {boolean}
-   */
-  isAlive() {
-    return this.client.isConnected();
+  async connect() {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      await this.client.connect();
+      this.db = this.client.db(); // Establish the database connection
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async isAlive() {
+    try {
+      // Check if the client is connected to the MongoDB server
+      return this.client.isConnected();
+    } catch (error) {
+      return false;
+    }
   }
 
   /**
@@ -36,25 +50,24 @@ class DBClient {
    * @returns {Promise<Number>}
    */
   async nbFiles() {
-    return this.client.db().collection('files').countDocuments();
-  }
-
-  /**
-   * Retrieves a reference to the `users` collection.
-   * @returns {Promise<Collection>}
-   */
-  async usersCollection() {
-    return this.client.db().collection('users');
-  }
-
-  /**
-   * Retrieves a reference to the `files` collection.
-   * @returns {Promise<Collection>}
-   */
-  async filesCollection() {
-    return this.client.db().collection('files');
+    try {
+      if (!this.db) {
+        throw new Error();
+      }
+      // Count the number of documents in the 'files' collection
+      return await this.db.collection('files').countDocuments();
+    } catch (error) {
+      return -1;
+    }
   }
 }
 
-export const dbClient = new DBClient();
+// Create a singleton instance of the DBClient
+const dbClient = new DBClient();
+
+// Connect to the database when the module is loaded
+dbClient.connect().catch(() => {
+  process.exit(1); // Exit the process if unable to connect to the database
+});
+
 export default dbClient;
