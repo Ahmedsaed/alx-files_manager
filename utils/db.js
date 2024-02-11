@@ -36,19 +36,9 @@ class DBClient {
    * @returns {Promise<Number>}
    */
   async nbFiles() {
-    try {
-      if (!this.db) {
-        throw new Error();
-      }
-      // Count the number of documents in the 'files' collection
-      return await this.db.collection('files').countDocuments();
-    } catch (error) {
-      return -1;
-    }
+    return this.db.collection('files').countDocuments();
   }
 }
 
-// Create a singleton instance of the DBClient
 const dbClient = new DBClient();
-
 export default dbClient;
