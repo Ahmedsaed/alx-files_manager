@@ -1,4 +1,5 @@
 const { MongoClient } = require('mongodb');
+const sha1 = require('sha1');
 
 /**
  * Represents a MongoDB Client.
@@ -45,6 +46,17 @@ class DBClient {
   async nbFiles() {
     const files = await this.db.collection('files').countDocuments();
     return files;
+  }
+
+  async userExists(email) {
+    const user = await this.db.collection('users').findOne({ email });
+    return user;
+  }
+
+  async createUser(email, password) {
+    const hashedPassword = sha1(password);
+    const user = await this.db.collection('users').insertOne({ email, hashedPassword });
+    return user;
   }
 }
 
