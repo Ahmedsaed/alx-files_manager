@@ -1,7 +1,9 @@
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const dbClient = require('../utils/db');
-const { authClient: authenticateUser } = require('../utils/auth');
+const AuthClient = require('../utils/auth');
+
+const authClient = AuthClient;
 
 class FilesController {
   // eslint-disable-next-line consistent-return
@@ -11,7 +13,7 @@ class FilesController {
       name, type, parentId = '0', isPublic = false, data,
     } = req.body;
 
-    const user = await authenticateUser(authorization);
+    const user = await authClient.authenticateUser(authorization);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
