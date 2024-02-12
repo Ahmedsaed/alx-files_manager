@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectID } = require('mongodb');
 const sha1 = require('sha1');
 
 /**
@@ -57,6 +57,16 @@ class DBClient {
     const hashedPassword = sha1(password);
     const user = await this.db.collection('users').insertOne({ email, password: hashedPassword });
     return user;
+  }
+
+  async createFile(fileData) {
+    const result = await this.db.collection('files').insertOne(fileData);
+    return result.ops[0];
+  }
+
+  async getFileById(fileId) {
+    const file = await this.db.collection('files').findOne({ _id: new ObjectID(fileId) });
+    return file;
   }
 }
 
