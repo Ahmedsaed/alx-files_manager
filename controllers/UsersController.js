@@ -10,8 +10,6 @@ class UsersController {
     const userExists = await dbClient.userExists(email);
     if (userExists) return res.status(400).send({ error: 'Already exist' });
 
-    console.log(password);
-
     const user = await dbClient.createUser(email, password);
     const id = `${user.insertedId}`;
     res.status(201).json({ id, email });
