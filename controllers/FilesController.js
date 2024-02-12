@@ -6,7 +6,6 @@ const AuthClient = require('../utils/auth');
 const authClient = AuthClient;
 
 class FilesController {
-  // eslint-disable-next-line consistent-return
   static async postUpload(req, res) {
     const { authorization } = req.headers;
     const {
@@ -60,7 +59,7 @@ class FilesController {
     };
     const insertedFile = await dbClient.createFile(newFile);
 
-    res.status(201).json(insertedFile);
+    return res.status(201).json(insertedFile);
   }
 }
 
