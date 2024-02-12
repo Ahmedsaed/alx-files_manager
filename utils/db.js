@@ -55,7 +55,7 @@ class DBClient {
 
   async createUser(email, password) {
     const hashedPassword = sha1(password);
-    const user = await this.db.collection('users').insertOne({ email, hashedPassword });
+    const user = await this.db.collection('users').insertOne({ email, password: hashedPassword });
     return user;
   }
 }
