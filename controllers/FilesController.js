@@ -3,8 +3,6 @@ const { v4: uuidv4 } = require('uuid');
 const dbClient = require('../utils/db');
 const AuthClient = require('../utils/auth');
 
-const authClient = AuthClient;
-
 class FilesController {
   static async postUpload(req, res) {
     const { authorization } = req.headers;
@@ -12,7 +10,7 @@ class FilesController {
       name, type, parentId = '0', isPublic = false, data,
     } = req.body;
 
-    const user = await authClient.authenticateUser(authorization);
+    const user = await AuthClient.authenticateUser(authorization);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
