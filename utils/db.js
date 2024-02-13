@@ -68,6 +68,35 @@ class DBClient {
     const file = await this.db.collection('files').findOne({ _id: new ObjectID(fileId) });
     return file;
   }
+
+  async getFilesByParentId(userId, parentId, page) {
+    const pipeline = [
+      { // Operation 1: Filter documents
+        $match: { // Filters based on specific conditions
+          userId, // Matches the userId
+          parentId: parentId.toString(), // Matches the parentId
+        },
+      },
+      { // Operation 2: Skip pages before reaching this page
+        $skip: page * 20, // For pagination
+      },
+      { // Operation 3: Limits the number of items in a page
+        $limit: 20, // Only a certain num of records returned
+      },
+    ];
+
+    const files = await this.db.collection('files').aggregate(pipeline).toArray();
+    return files;
+  }
+
+  async updateFile(fileId, updatedFile) {
+    const result = await this.db.collection('files').updateOne(
+      { _id: new ObjectID(fileId) },
+      { $set: updatedFile },
+    );
+
+    return result.modifiedCount > 0;
+  }
 }
 
 const dbClient = new DBClient();

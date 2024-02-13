@@ -1,4 +1,5 @@
 const fs = require('fs');
+const mime = require('mime-types');
 const { v4: uuidv4 } = require('uuid');
 const dbClient = require('../utils/db');
 const AuthClient = require('../utils/auth');
@@ -73,6 +74,107 @@ class FilesController {
     }
 
     return res.status(201).json(responseFile);
+  }
+
+  static async getShow(req, res) {
+    const authorization = req.header('X-Token');
+    const fileId = req.params.id;
+
+    const user = await AuthClient.authenticateUser(authorization);
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const file = await dbClient.getFileById(fileId);
+    if (!file || file.userId !== user._id) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    return res.status(200).json(file);
+  }
+
+  static async getIndex(req, res) {
+    const authorization = req.header('X-Token');
+    const { parentId = 0, page = 0 } = req.query;
+
+    const user = await AuthClient.authenticateUser(authorization);
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const files = await dbClient.getFilesByParentId(user._id, parentId, page);
+    return res.status(200).json(files);
+  }
+
+  static async putPublish(req, res) {
+    const authorization = req.header('X-Token');
+    const fileId = req.params.id;
+
+    const user = await AuthClient.authenticateUser(authorization);
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const file = await dbClient.getFileById(fileId);
+    if (!file || file.userId !== user._id) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    file.isPublic = true;
+    await dbClient.updateFile(fileId, file);
+
+    return res.status(200).json(file);
+  }
+
+  static async putUnpublish(req, res) {
+    const authorization = req.header('X-Token');
+    const fileId = req.params.id;
+
+    const user = await AuthClient.authenticateUser(authorization);
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const file = await dbClient.getFileById(fileId);
+    if (!file || file.userId !== user._id) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    file.isPublic = false;
+    await dbClient.updateFile(fileId, file);
+
+    return res.status(200).json(file);
+  }
+
+  static async getFile(req, res) {
+    const authorization = req.header('X-Token');
+    const fileId = req.params.id;
+
+    const user = await AuthClient.authenticateUser(authorization);
+    const file = await dbClient.getFileById(fileId);
+
+    if (!file) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    if (!file.isPublic && (!user || user._id !== file.userId)) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    if (file.type === 'folder') {
+      return res.status(400).json({ error: "A folder doesn't have content" });
+    }
+
+    if (!file.localPath || !fs.existsSync(file.localPath)) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    const mimeType = mime.contentType(file.name);
+
+    const data = fs.readFileSync(file.localPath);
+
+    res.setHeader('Content-Type', mimeType);
+    return res.send(data);
   }
 }
 
