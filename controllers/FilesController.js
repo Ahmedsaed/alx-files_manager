@@ -53,11 +53,26 @@ class FilesController {
       type,
       isPublic,
       parentId,
-      localPath: type !== 'folder' ? localPath : null,
     };
+    if (localPath) {
+      newFile.localPath = localPath;
+    }
+
     const insertedFile = await dbClient.createFile(newFile);
 
-    return res.status(201).json(insertedFile);
+    const responseFile = {
+      id: insertedFile._id,
+      userId: insertedFile.userId,
+      name: insertedFile.name,
+      type: insertedFile.type,
+      isPublic: insertedFile.isPublic,
+      parentId: insertedFile.parentId,
+    };
+    if (insertedFile.localPath) {
+      responseFile.localPath = insertedFile.localPath;
+    }
+
+    return res.status(201).json(responseFile);
   }
 }
 
