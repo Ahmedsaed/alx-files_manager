@@ -7,7 +7,7 @@ class FilesController {
   static async postUpload(req, res) {
     const authorization = req.header('X-Token');
     const {
-      name, type, parentId = '0', isPublic = false, data,
+      name, type, parentId = 0, isPublic = false, data,
     } = req.body;
 
     const user = await AuthClient.authenticateUser(authorization);
@@ -25,7 +25,7 @@ class FilesController {
       return res.status(400).json({ error: 'Missing data' });
     }
 
-    if (parentId !== '0') {
+    if (parentId !== 0) {
       const parentFile = await dbClient.getFileById(parentId);
       if (!parentFile) {
         return res.status(400).json({ error: 'Parent not found' });
