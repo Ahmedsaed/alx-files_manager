@@ -1,3 +1,4 @@
+const { ObjectID } = require('mongodb');
 const redisClient = require('./redis');
 const dbClient = require('./db');
 
@@ -8,7 +9,8 @@ class AuthClient {
       return null;
     }
 
-    const user = await dbClient.db.collection('users').findOne({ _id: userId });
+    const user = await dbClient.db.collection('users').findOne({ _id: new ObjectID(userId) });
+    console.log(user);
     return user;
   }
 }

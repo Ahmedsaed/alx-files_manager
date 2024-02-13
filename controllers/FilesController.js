@@ -5,7 +5,7 @@ const AuthClient = require('../utils/auth');
 
 class FilesController {
   static async postUpload(req, res) {
-    const { authorization } = req.headers;
+    const authorization = req.header('X-Token');
     const {
       name, type, parentId = '0', isPublic = false, data,
     } = req.body;
