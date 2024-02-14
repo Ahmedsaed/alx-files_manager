@@ -86,7 +86,7 @@ class FilesController {
     }
 
     const file = await dbClient.getFileById(fileId);
-    if (!file || file.userId.toString() != user._id.toString()) {
+    if (!file || file.userId.toString() !== user._id.toString()) {
       return res.status(404).json({ error: 'Not found' });
     }
 
@@ -112,10 +112,8 @@ class FilesController {
         type: file.type,
         isPublic: file.isPublic,
         parentId: file.parentId,
-      }
-      if (file.localPath) {
-        responseFile.localPath = file.localPath;
-      }
+        localPath: (file.localPath ? file.localPath : null),
+      };
       return responseFile;
     });
 
@@ -132,7 +130,7 @@ class FilesController {
     }
 
     const file = await dbClient.getFileById(fileId);
-    if (!file || file.userId !== user._id) {
+    if (!file || file.userId.toString() !== user._id.toString()) {
       return res.status(404).json({ error: 'Not found' });
     }
 
@@ -152,7 +150,7 @@ class FilesController {
     }
 
     const file = await dbClient.getFileById(fileId);
-    if (!file || file.userId !== user._id) {
+    if (!file || file.userId.toString() !== user._id.toString()) {
       return res.status(404).json({ error: 'Not found' });
     }
 
