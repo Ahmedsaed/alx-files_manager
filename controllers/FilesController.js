@@ -101,19 +101,11 @@ class FilesController {
 
     const files = await dbClient.getFilesByParentId(user._id, parentId, page);
 
-    const responseFiles = files.map((file) => {
-      const responseFile = {
-        id: file._id,
-        userId: file.userId,
-        name: file.name,
-        type: file.type,
-        isPublic: file.isPublic,
-        parentId: file.parentId,
-      };
-      return responseFile;
-    });
+    if (!files) {
+      return res.status(404).json({ error: 'Not found' });
+    }
 
-    return res.status(201).json(responseFiles);
+    return res.status(201).json(files);
   }
 
   static async putPublish(req, res) {

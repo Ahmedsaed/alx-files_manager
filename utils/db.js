@@ -73,22 +73,34 @@ class DBClient {
   }
 
   async getFilesByParentId(userId, parentId, page) {
+    let query = { userId };
+    if (parentId !== 0) {
+      query = { userId, parentId: new ObjectID(parentId) };
+    }
     const pipeline = [
       { // Operation 1: Filter documents
-        $match: { // Filters based on specific conditions
-          userId, // Matches the userId
-          parentId, // Matches the parentId
+        $match: query,
+      },
+      { $sort: { _id: -1 } },
+      { $skip: page * 20 },
+      { $limit: 20 },
+      {
+        $project: {
+          _id: 0,
+          id: '$_id',
+          userId: '$userId',
+          name: '$name',
+          type: '$type',
+          isPublic: '$isPublic',
+          parentId: {
+            $cond: { if: { $eq: ['$parentId', '0'] }, then: 0, else: '$parentId' },
+          },
         },
-      },
-      { // Operation 2: Skip pages before reaching this page
-        $skip: page * 20, // For pagination
-      },
-      { // Operation 3: Limits the number of items in a page
-        $limit: 20, // Only a certain num of records returned
       },
     ];
 
     const files = await this.db.collection('files').aggregate(pipeline).toArray();
+
     return files;
   }
 
