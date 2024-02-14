@@ -1,6 +1,9 @@
 const { ObjectID } = require('mongodb');
+const Queue = require('bull');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
+
+const userQueue = new Queue('userQueue');
 
 class UsersController {
   static async postNew(req, res) {
@@ -14,6 +17,11 @@ class UsersController {
 
     const user = await dbClient.createUser(email, password);
     const id = `${user.insertedId}`;
+
+    await userQueue.add({
+      userId: user.insertedId.toString(),
+    });
+
     return res.status(201).json({ id, email }).end();
   }
 
