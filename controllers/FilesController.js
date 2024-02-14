@@ -80,15 +80,13 @@ class FilesController {
     const authorization = req.header('X-Token');
     const fileId = req.params.id;
 
-    console.log(req.params);
-
     const user = await AuthClient.authenticateUser(authorization);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
     const file = await dbClient.getFileById(fileId);
-    if (!file || file.userId !== user._id) {
+    if (!file || file.userId.toString() != user._id.toString()) {
       return res.status(404).json({ error: 'Not found' });
     }
 

@@ -10,7 +10,6 @@ class AuthClient {
     }
 
     const user = await dbClient.db.collection('users').findOne({ _id: new ObjectID(userId) });
-    console.log(user);
     return user;
   }
 }
