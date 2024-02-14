@@ -112,7 +112,6 @@ class FilesController {
         type: file.type,
         isPublic: file.isPublic,
         parentId: file.parentId,
-        localPath: (file.localPath ? file.localPath : null),
       };
       return responseFile;
     });
