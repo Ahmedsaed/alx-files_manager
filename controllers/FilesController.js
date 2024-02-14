@@ -1,8 +1,11 @@
 const fs = require('fs');
 const mime = require('mime-types');
 const { v4: uuidv4 } = require('uuid');
+const { Queue } = require('bull');
 const dbClient = require('../utils/db');
 const AuthClient = require('../utils/auth');
+
+const fileQueue = new Queue('fileQueue');
 
 class FilesController {
   static async postUpload(req, res) {
@@ -14,6 +17,9 @@ class FilesController {
     const user = await AuthClient.authenticateUser(authorization);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
+    }
+    if (!user && req.body.type === 'image') {
+      fileQueue.add({});
     }
 
     if (!name) {
@@ -69,6 +75,13 @@ class FilesController {
       isPublic: insertedFile.isPublic,
       parentId: insertedFile.parentId,
     };
+
+    if (newFile.type === 'image') {
+      await fileQueue.add({
+        fileId: newFile.id.toString(),
+        userId: newFile.userId.toString(),
+      });
+    }
 
     return res.status(201).json(responseFile);
   }
@@ -160,6 +173,7 @@ class FilesController {
   static async getFile(req, res) {
     const authorization = req.header('X-Token');
     const fileId = req.params.id;
+    const size = req.query.size || 0;
 
     const user = await AuthClient.authenticateUser(authorization);
     const file = await dbClient.getFileById(fileId);
@@ -182,10 +196,13 @@ class FilesController {
 
     const mimeType = mime.contentType(file.name);
 
-    const data = fs.readFileSync(file.localPath);
-
-    res.setHeader('Content-Type', mimeType);
-    return res.send(data);
+    try {
+      const data = fs.readFileSync(`${file.localPath}_${size}`);
+      res.setHeader('Content-Type', mimeType);
+      return res.send(data);
+    } catch (error) {
+      return res.status(404).json({ error: 'Not found' });
+    }
   }
 }
 
