@@ -74,9 +74,14 @@ class DBClient {
 
   async getFilesByParentId(userId, parentId, page) {
     let query = { userId };
-    if (parentId !== 0) {
-      query = { userId, parentId: new ObjectID(parentId) };
+    try {
+      if (parentId !== 0) {
+        query = { userId, parentId: new ObjectID(parentId) };
+      }
+    } catch (error) {
+      return [];
     }
+
     const pipeline = [
       { // Operation 1: Filter documents
         $match: query,
