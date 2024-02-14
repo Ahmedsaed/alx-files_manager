@@ -102,24 +102,25 @@ class FilesController {
 
     const responseFile = {
       id: file._id,
-      userId: file.userId,
-      name: file.name,
-      type: file.type,
-      isPublic: file.isPublic,
-      parentId: file.parentId,
+      ...file,
     };
+    delete responseFile._id;
+    delete responseFile.localPath;
 
     return res.status(200).json(responseFile);
   }
 
   static async getIndex(req, res) {
     const authorization = req.header('X-Token');
-    const { parentId = 0, page = 0 } = req.query;
+    let { parentId = 0, page = 0 } = req.query;
 
     const user = await AuthClient.authenticateUser(authorization);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
+
+    if (parentId === '0') parentId = 0;
+    if (Number.isNaN(page)) page = 0;
 
     const files = await dbClient.getFilesByParentId(user._id, parentId, page);
 

@@ -1,5 +1,6 @@
 const { MongoClient, ObjectID } = require('mongodb');
 const sha1 = require('sha1');
+const basicUtils = require('./basic');
 
 /**
  * Represents a MongoDB Client.
@@ -65,6 +66,10 @@ class DBClient {
   }
 
   async getFileById(fileId) {
+    if (!basicUtils.isValidId(fileId)) {
+      return null;
+    }
+
     const file = await this.db.collection('files').findOne({
       _id: new ObjectID(fileId),
     });
@@ -73,17 +78,22 @@ class DBClient {
   }
 
   async getFilesByParentId(userId, parentId, page) {
-    let query = { userId, isPublic: true };
+    let query = { userId, parentId: '0' };
     try {
       if (parentId !== 0) {
-        query = { userId, isPublic: true, parentId: new ObjectID(parentId) };
+        query = { ...query, parentId: new ObjectID(parentId) };
       }
     } catch (error) {
       return [];
     }
 
+    const folder = await this.getFileById(parentId);
+    if (parentId !== 0 && (!folder || folder.type !== 'folder')) {
+      return [];
+    }
+
     const pipeline = [
-      { // Operation 1: Filter documents
+      {
         $match: query,
       },
       { $sort: { _id: -1 } },
