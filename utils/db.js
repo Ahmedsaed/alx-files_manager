@@ -74,7 +74,7 @@ class DBClient {
       { // Operation 1: Filter documents
         $match: { // Filters based on specific conditions
           userId, // Matches the userId
-          parentId: parentId.toString(), // Matches the parentId
+          parentId, // Matches the parentId
         },
       },
       { // Operation 2: Skip pages before reaching this page
