@@ -73,10 +73,10 @@ class DBClient {
   }
 
   async getFilesByParentId(userId, parentId, page) {
-    let query = { userId };
+    let query = { userId, isPublic: true };
     try {
       if (parentId !== 0) {
-        query = { userId, parentId: new ObjectID(parentId) };
+        query = { userId, isPublic: true, parentId: new ObjectID(parentId) };
       }
     } catch (error) {
       return [];
