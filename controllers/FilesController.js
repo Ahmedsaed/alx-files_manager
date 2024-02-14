@@ -106,14 +106,20 @@ class FilesController {
 
     const files = await dbClient.getFilesByParentId(user._id, parentId, page);
 
-    const responseFiles = files.map((file) => ({
-      id: file._id,
-      userId: file.userId,
-      name: file.name,
-      type: file.type,
-      isPublic: file.isPublic,
-      parentId: file.parentId,
-    }));
+    const responseFiles = files.map((file) => {
+      const responseFile = {
+        id: file._id,
+        userId: file.userId,
+        name: file.name,
+        type: file.type,
+        isPublic: file.isPublic,
+        parentId: file.parentId,
+      }
+      if (file.localPath) {
+        responseFile.localPath = file.localPath;
+      }
+      return responseFile;
+    });
 
     return res.status(201).json(responseFiles);
   }
