@@ -69,9 +69,6 @@ class FilesController {
       isPublic: insertedFile.isPublic,
       parentId: insertedFile.parentId,
     };
-    if (insertedFile.localPath) {
-      responseFile.localPath = insertedFile.localPath;
-    }
 
     return res.status(201).json(responseFile);
   }
