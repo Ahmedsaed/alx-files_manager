@@ -204,12 +204,7 @@ class FilesController {
     const mimeType = mime.contentType(file.name);
 
     try {
-      let data = null;
-      if (size === 0) {
-        data = fs.readFileSync(file.localPath);
-      } else {
-        data = fs.readFileSync(`${file.localPath}_${size}`);
-      }
+      const data = fs.readFileSync(`${file.localPath}_${size}`);
       res.setHeader('Content-Type', mimeType);
       return res.send(data);
     } catch (error) {
