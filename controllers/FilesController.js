@@ -1,7 +1,7 @@
 const fs = require('fs');
 const mime = require('mime-types');
 const { v4: uuidv4 } = require('uuid');
-const { Queue } = require('bull');
+const Queue = require('bull');
 const dbClient = require('../utils/db');
 const AuthClient = require('../utils/auth');
 
