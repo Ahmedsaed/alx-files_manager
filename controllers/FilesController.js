@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { ObjectId } = require('mongodb');
 const mime = require('mime-types');
 const { v4: uuidv4 } = require('uuid');
 const Queue = require('bull');
@@ -90,7 +91,10 @@ class FilesController {
     const authorization = req.header('X-Token');
     const fileId = req.params.id;
 
-    const user = await AuthClient.authenticateUser(authorization);
+    const userId = await AuthClient.authenticateUser(authorization);
+    const user = await dbClient.getUserById({
+      _id: ObjectId(userId),
+    });
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -116,7 +120,10 @@ class FilesController {
     const authorization = req.header('X-Token');
     const { parentId = 0, page = 0 } = req.query;
 
-    const user = await AuthClient.authenticateUser(authorization);
+    const userId = await AuthClient.authenticateUser(authorization);
+    const user = await dbClient.getUserById({
+      _id: ObjectId(userId),
+    });
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
