@@ -105,7 +105,7 @@ class FilesController {
       return res.status(404).json({ error: 'Not found' });
     }
 
-    return res.status(201).json(files);
+    return res.status(200).json(files);
   }
 
   static async putPublish(req, res) {
