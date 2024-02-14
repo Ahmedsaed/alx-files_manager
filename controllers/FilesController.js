@@ -80,6 +80,8 @@ class FilesController {
     const authorization = req.header('X-Token');
     const fileId = req.params.id;
 
+    console.log(req.params);
+
     const user = await AuthClient.authenticateUser(authorization);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -103,7 +105,17 @@ class FilesController {
     }
 
     const files = await dbClient.getFilesByParentId(user._id, parentId, page);
-    return res.status(200).json(files);
+
+    const responseFiles = files.map((file) => ({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    }));
+
+    return res.status(201).json(responseFiles);
   }
 
   static async putPublish(req, res) {
