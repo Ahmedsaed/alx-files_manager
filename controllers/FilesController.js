@@ -87,7 +87,16 @@ class FilesController {
       return res.status(404).json({ error: 'Not found' });
     }
 
-    return res.status(200).json(file);
+    const responseFile = {
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    };
+
+    return res.status(200).json(responseFile);
   }
 
   static async getIndex(req, res) {
