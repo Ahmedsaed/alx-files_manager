@@ -123,9 +123,8 @@ class FilesController {
     if (parentId === '0') parentId = 0;
     if (Number.isNaN(page)) page = 0;
 
-    const pageNumber = Number(page);
 
-    const files = await dbClient.getFilesByParentId(user._id, parentId, pageNumber);
+    const files = await dbClient.getFilesByParentId(user._id, parentId, page);
 
     if (!files) {
       return res.status(404).json({ error: 'Not found' });
