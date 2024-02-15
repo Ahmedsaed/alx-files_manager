@@ -123,11 +123,7 @@ class FilesController {
     if (parentId === '0') parentId = 0;
     if (Number.isNaN(page)) page = 0;
 
-    if (parentId !== 0 && parentId !== '0') {
-      if (!basicUtils.isValidId(parentId)) {
-        return response.status(401).send({ error: 'Unauthorized' });
-      }
-    }
+    const pageNumber = Number(page);
 
     const files = await dbClient.getFilesByParentId(user._id, parentId, pageNumber);
 
