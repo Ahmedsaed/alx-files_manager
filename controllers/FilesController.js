@@ -121,7 +121,7 @@ class FilesController {
 
     if (parentId === '0') parentId = 0;
     if (Number.isNaN(page)) page = 0;
-    const pageNumber = Number(page);
+    const pageNumber = Math.max(Number(page), 0);
 
     const files = await dbClient.getFilesByParentId(user._id, parentId, pageNumber);
 
