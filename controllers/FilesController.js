@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const Queue = require('bull');
 const dbClient = require('../utils/db');
 const AuthClient = require('../utils/auth');
+const basicUtils = require('../utils/basic');
 
 const fileQueue = new Queue('fileQueue');
 
@@ -121,7 +122,12 @@ class FilesController {
 
     if (parentId === '0') parentId = 0;
     if (Number.isNaN(page)) page = 0;
-    const pageNumber = Math.max(Number(page), 0);
+
+    if (parentId !== 0 && parentId !== '0') {
+      if (!basicUtils.isValidId(parentId)) {
+        return response.status(401).send({ error: 'Unauthorized' });
+      }
+    }
 
     const files = await dbClient.getFilesByParentId(user._id, parentId, pageNumber);
 
